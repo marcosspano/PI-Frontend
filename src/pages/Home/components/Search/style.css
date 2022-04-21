@@ -63,6 +63,10 @@ div .div-search {
     border-radius: 0.2rem !important;
 }
 
+.inputgroup {
+    cursor: pointer;
+}
+
 @media (max-width: 768px) {
     div .div-search {
         padding: 0 10px 5px;

@@ -4,6 +4,7 @@ import { Form, Button, Row, Col, Container, InputGroup} from 'react-bootstrap';
 import {BsGeoAltFill} from "react-icons/bs";
 
 import api from "../../../../services/api"
+import apiGeolocation from "../../../../services/apiGeolocation";
 import './style.css';
 
 
@@ -20,17 +21,16 @@ function Search({onSaveData}) {
     const sugestoes = document.querySelector('.sugestoesCidade')
     const inputCidade = document.querySelector('.inputCidade')
 
+    const [latitudeGeolocation, setLatitudeGeolocation] = useState([]);
+    const [longitudeGeolocation, setLongitudeGeolocation] = useState({});
+    const [dadosGeolocation, setDadosGeolocation] = useState([]);
+
 
     const getCidades = async () => {
         await api.get('/cidade')
         .then(response => setDataCidade(response.data))
         .catch((err) => console.error(err))         
     }
-
-    useEffect(() => {
-        getCidades();
-    }, [])
-
 
 const handleInputChange = (e) => {
     e.preventDefault();
@@ -82,8 +82,72 @@ const handleSubmit = (e) => {
             const data = {
                 cidade, rangeReserva
             }
+
+            onSaveData(data)
+
+            // console.log(cidade);
         
 }
+
+
+    const getLatLng = () => {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition((position) => {
+
+                setLatitudeGeolocation(position.coords.latitude)
+                setLongitudeGeolocation(position.coords.longitude)  
+
+            }, (error) => {
+                console.log(error)
+            }, {enableHightAccuracy: true, maximumAge: 30000, timeout: 30000})
+        } else {
+            console.log('Ops, não foi possível pegar sua localização')
+        }
+    }
+
+    // const getGeolocation = async () => {
+
+    //     await apiGeolocation.get(`reverse?lat=${latitudeGeolocation}&lon=${longitudeGeolocation}&format=json`)
+    //         .then(response => setDadosGeolocation(response.data))
+    //         .catch(err => console.log(err)) 
+        
+    // }
+
+
+    const clickGeolocation = () => {
+
+        setCidade(dadosGeolocation.address.state)
+
+        const data = {
+            cidade, rangeReserva
+        }
+
+        onSaveData(data)
+
+        inputCidade.value = cidade;
+
+        console.log(dadosGeolocation.address.city_district);
+
+    }
+
+    useEffect(() => {
+        
+        getCidades();
+        getLatLng();
+        
+        const getGeolocation = async () => {
+
+            await apiGeolocation.get(`reverse?lat=${latitudeGeolocation}&lon=${longitudeGeolocation}&format=json`)
+                .then(response => setDadosGeolocation(response.data))
+                .catch(err => console.log(err)) 
+            
+        }
+
+        getGeolocation();
+
+
+    }, [latitudeGeolocation, longitudeGeolocation])
+
 
     return (
         <div className="div-search">
@@ -97,7 +161,10 @@ const handleSubmit = (e) => {
                     <Form.Group className="mb-2">
                         <Form.Label >Cidade</Form.Label>
                         <InputGroup>
-                        <InputGroup.Text><BsGeoAltFill size="0.8em"/></InputGroup.Text>
+
+                        {/* Ícone de localização */}
+                        <InputGroup.Text onClick={clickGeolocation} className="inputgroup"><BsGeoAltFill size="0.8em"/></InputGroup.Text>
+
                         <Form.Control size = "sm" className="inputCidade shadow-sm border-0 max-width-100" type="text" placeholder="Sua localização" onChange={handleInputChange} />
                         <ul className="sugestoesCidade">
                             {
@@ -108,7 +175,7 @@ const handleSubmit = (e) => {
                                             {item}
                                         </li>
                                        )})
-                                }
+                            }
                         </ul>
                         </InputGroup>
                     </Form.Group>

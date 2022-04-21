@@ -1,24 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import api from '../../../../services/api';
-import { useState, useEffect } from 'react';
-
 import './style.css';
-import Position from "rsuite/esm/Overlay/Position";
 
 function PrincipalMain ({listaProdutos, listaImagens}) {
 
-   
+    const shuffleProdutos = (arr) => {
+        for (let i = arr.length - 1; i > 0; i--){
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    useEffect(() => {
+        shuffleProdutos(listaProdutos);
+    })
+ 
     return (
         <>
             <div className="main__Container">
 
                 
                 <div className="sugestaoBusca">
-                    {/* <h2>Busca por tipo de carro</h2> */}
-                    <p>Encontre os melhores carros para você!</p>
 
+                    <p>Encontre os melhores carros para você!</p>
 
 
                     {listaProdutos.slice(0, 4).map(({ id, nome, categoria }) => {
@@ -27,7 +33,7 @@ function PrincipalMain ({listaProdutos, listaImagens}) {
                                 {listaImagens.filter(iLista => iLista.produto.id === id).slice(0, 1).map(({ url }) => {
                                     return (
                                         <Link to={`/produto/detalhes/${id}`}>
-                                            <img src={ url } alt={`Imagem de carro ${categoria.titulo}`} />
+                                            <img src={ url } alt={`Imagem de carro ${categoria.titulo}`} loading="lazy" />
                                         </Link>
                                     )
                                 })}
@@ -50,18 +56,19 @@ function PrincipalMain ({listaProdutos, listaImagens}) {
                         Recomendações
                     </h2>
 
+
                     {listaProdutos.slice(0, 8).map(({ id, nome, descricao, cidade, categoria }) => {
                         return (
                             <div className="cartao" key={id}>
                                 {
-                                    localStorage.getItem('@SESSION') === 'null' ? '' : <span className="heart"></span>
+                                    localStorage.getItem('@SESSION') === 'null' || !localStorage.getItem('@SESSION') ? '' : <span className="heart"></span>
                                 }
 
                                 <span className="nota">8.0</span>
 
                                 <div className="cartaoImg">
                                     {listaImagens.filter(iLista => iLista.produto.id === id).slice(0, 1).map(({ id, url }) => {
-                                        return (<img src={url} key={id} alt="" />)
+                                        return (<img src={url} alt="" loading="lazy" />)
                                     })}
                                 </div>
 

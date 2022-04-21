@@ -108,8 +108,8 @@
     justify-content: space-around;
 }
 
-.main__Container .blocoLista h2 {
-    font-size: 1.6rem;
+.main__Container .blocoLista h3 {
+    font-size: 1rem;
     width: 100%;
     padding: 10px;
     margin: 0 10px;

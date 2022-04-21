@@ -12,6 +12,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useState } from 'react';
 
 export function Admin() {
+
   const [attributes, setAttributes] = useState([]);
   const [images, setImages] = useState([]);
   
